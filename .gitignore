@@ -1,0 +1,7 @@
+/win/*.sdf
+/win/*.suo
+/win/*.opensdf
+
+/win/MindKey/*.user
+
+/win/MindKeyServer/*.user
