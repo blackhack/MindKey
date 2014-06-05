@@ -8,6 +8,8 @@ MindKey is only for Windows, but MindKeyServer can run in linux.
 
 This program requires the Boost libraries, tested with version 1.55.0.
 
+This program requires versions of GCC or Visual Studio compaibles with C++11.
+
 License
 =======
  MindKey, Windows keylogger. 
@@ -15,7 +17,7 @@ License
  it was written for educational and recreational purposes only
  and the author does not endorse illegal use.
 
- Copyright (C) 2013 Blackhack <https://github.com/blackhack/MindKey/>
+ Copyright (C) 2014 Blackhack <https://github.com/blackhack/MindKey/>
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
