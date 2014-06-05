@@ -24,16 +24,7 @@
 #ifndef SERIALIZATION_CONNECTION_H
 #define SERIALIZATION_CONNECTION_H
 
-#include <boost/asio.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <iomanip>
-#include <string>
-#include <sstream>
-#include <vector>
+#include "common.hpp"
 
 
 /// The connection class provides serialization primitives on top of a socket.
@@ -71,8 +62,8 @@ public:
 
         // Format the header.
         std::ostringstream header_stream;
-        header_stream << std::setw(header_length)
-            << std::hex << outbound_data_.size();
+        header_stream << std::setw(header_length) << std::hex << outbound_data_.size();
+
         if (!header_stream || header_stream.str().size() != header_length)
         {
             // Something went wrong, inform the caller.
@@ -80,6 +71,7 @@ public:
             socket_.get_io_service().post(boost::bind(handler, error));
             return;
         }
+
         outbound_header_ = header_stream.str();
 
         // Write the serialized data to the socket. We use "gather-write" to send
@@ -95,22 +87,17 @@ public:
     void async_read(T& t, Handler handler)
     {
         // Issue a read operation to read exactly the number of bytes in a header.
-        void (connection::*f)(
-            const boost::system::error_code&,
-            T&, boost::tuple<Handler>)
-            = &connection::handle_read_header<T, Handler>;
+        void (connection::*f)(const boost::system::error_code&, T&, boost::tuple<Handler>) = &connection::handle_read_header<T, Handler>;
+
         boost::asio::async_read(socket_, boost::asio::buffer(inbound_header_),
-            boost::bind(f,
-            this, boost::asio::placeholders::error, boost::ref(t),
-            boost::make_tuple(handler)));
+            boost::bind(f, this, boost::asio::placeholders::error, boost::ref(t), boost::make_tuple(handler)));
     }
 
     /// Handle a completed read of a message header. The handler is passed using
     /// a tuple since boost::bind seems to have trouble binding a function object
     /// created using boost::bind as a parameter.
     template <typename T, typename Handler>
-    void handle_read_header(const boost::system::error_code& e,
-        T& t, boost::tuple<Handler> handler)
+    void handle_read_header(const boost::system::error_code& e, T& t, boost::tuple<Handler> handler)
     {
         if (e)
         {
@@ -194,7 +181,7 @@ private:
     std::vector<char> inbound_data_;
 };
 
-typedef boost::shared_ptr<connection> connection_ptr;
+typedef std::shared_ptr<connection> ConnectionPtr;
 
 
 #endif // SERIALIZATION_CONNECTION_H

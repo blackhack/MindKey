@@ -19,13 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "common.hpp"
 #include "senderDaemon.h"
 
 
 void Client::StartSendOperations()
 {
     //Delay between sends.
-    boost::this_thread::sleep(boost::posix_time::seconds(NEXT_WRITE_TIME));
+    std::this_thread::sleep_for(std::chrono::seconds(NEXT_WRITE_TIME));
 
     try
     {

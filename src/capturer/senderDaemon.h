@@ -24,20 +24,7 @@
 #ifndef MINDKEY_SENDER_H
 #define MINDKEY_SENDER_H
 
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost\thread\mutex.hpp>
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
 #include <Psapi.h>
-#include <connection.h>
-#include <boost/serialization/vector.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <dataStruct.h>
 
 #define NEXT_WRITE_TIME 300 // In Seconds
 
@@ -66,7 +53,7 @@ private:
 
     std::vector<KeyDataStruct> _stocks;
     std::vector<KeyDataStruct> _stocksBackup;
-    boost::mutex _keysBufferLock;
+    std::mutex _keysBufferLock;
 };
 
 #endif //MINDKEY_SENDER_H

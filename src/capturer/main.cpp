@@ -22,8 +22,9 @@
 
 /* Ugly Windows API code */
 
-
+#include "common.hpp"
 #include "senderDaemon.h"
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <io.h>
@@ -200,7 +201,7 @@ int WINAPI WinMain(HINSTANCE thisinstance, HINSTANCE previnstance, LPSTR cmdline
     boost::asio::io_service io_service;
     client = new Client(io_service, SERVER_ADDRESS, SERVER_PORT);
 
-    boost::thread senderThread(&ServerRunThread, &io_service, client);
+    std::thread senderThread(&ServerRunThread, &io_service, client);
 
     running = true;
     while (running)
@@ -211,6 +212,8 @@ int WINAPI WinMain(HINSTANCE thisinstance, HINSTANCE previnstance, LPSTR cmdline
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+
+    senderThread.join();
 
     return 0;
 }

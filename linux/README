@@ -1,1 +1,0 @@
-You need to edit the Make file and set vars BOOST_ROOT, BOOST_INCLUDE_DIR, BOOST_LIB_DIR.

