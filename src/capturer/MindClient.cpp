@@ -20,7 +20,7 @@
  */
 
 #include "common.hpp"
-#include "senderDaemon.h"
+#include "MindClient.h"
 
 
 void Client::StartSendOperations()

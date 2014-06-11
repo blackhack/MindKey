@@ -24,7 +24,7 @@
 #define SERVER_PORT "1995"
 
 #include "common.hpp"
-#include "senderDaemon.h"
+#include "MindClient.h"
 
 #include <cstdlib>
 #include <windows.h>
