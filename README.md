@@ -8,7 +8,7 @@ MindKey is only for Windows, but MindKeyServer can run in linux.
 
 This program requires the Boost libraries, tested with version 1.55.0.
 
-This program requires versions of GCC or Visual Studio compaibles with C++11.
+This program requires versions of GCC or Visual Studio compatibles with C++11.
 
 License
 =======
