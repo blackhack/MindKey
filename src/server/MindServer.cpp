@@ -61,10 +61,7 @@ void MindServer::HandleRead(const boost::system::error_code& e, ConnectionPtr co
 void MindServer::SaveData(ConnectionPtr conn)
 {
     if (_receivedData.size() <= 0)
-    {
-        std::cerr << "Error: " << "Data received, but empty?" << std::endl;
         return;
-    }
 
     time_t currTime = time(NULL);
     std::string stringDate = ctime(&currTime);
