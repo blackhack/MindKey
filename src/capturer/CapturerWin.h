@@ -7,7 +7,7 @@ public:
 
     void run();
 
-    std::string GeyKey(unsigned char c);
+    bool GeyKey(unsigned char c, std::string &key);
     std::string intToString(unsigned short i);
 
 private:
