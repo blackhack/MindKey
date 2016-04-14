@@ -58,6 +58,16 @@ void MindServer::HandleRead(const boost::system::error_code& e, ConnectionPtr co
         std::cerr << "Exeption: " << e.message().c_str() << std::endl;
 }
 
+// Only allow filename with ascii chars.
+void checkFileName(std::string &str)
+{
+    for (std::string::size_type i = 0; i < str.size(); ++i)
+    {
+        if (str[i] > char(127))
+            str[i] = char(95);
+    }
+}
+
 void MindServer::SaveData(ConnectionPtr conn)
 {
     if (_receivedData.size() <= 0)
@@ -68,6 +78,7 @@ void MindServer::SaveData(ConnectionPtr conn)
     stringDate[stringDate.size() - 1] = 0; // Erase an new line.
 
     std::string fileName = _receivedData[0].User + ".txt";
+    checkFileName(fileName);
 
     std::cout << "Update file: " << fileName.c_str() << "\n";
 
