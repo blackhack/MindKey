@@ -41,7 +41,7 @@ void MindServer::HandleAccept(const boost::system::error_code& e, ConnectionPtr 
     if (!e)
         conn->async_read(_receivedData, boost::bind(&MindServer::HandleRead, this, boost::asio::placeholders::error, conn));
     else
-        std::cerr << "Exeption: " << e.message().c_str() << std::endl;
+        std::cerr << "Exeption Acceptor: " << e.message().c_str() << std::endl;
 
     ConnectionPtr new_conn(new connection(_acceptor.get_io_service()));
     _acceptor.async_accept(new_conn->socket(), boost::bind(&MindServer::HandleAccept, this, boost::asio::placeholders::error, new_conn));
@@ -55,7 +55,7 @@ void MindServer::HandleRead(const boost::system::error_code& e, ConnectionPtr co
         SaveData(conn);
     }
     else
-        std::cerr << "Exeption: " << e.message().c_str() << std::endl;
+        std::cerr << "Exeption Read: " << e.message().c_str() << std::endl;
 }
 
 // Only allow filename with ascii chars.
