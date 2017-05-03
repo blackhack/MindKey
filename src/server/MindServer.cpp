@@ -21,7 +21,7 @@
 
 #include "common.hpp"
 #include "MindServer.h"
-
+#include <iomanip>
 
 MindServer::MindServer(boost::asio::io_service& io_service, unsigned short port)
 : _acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
