@@ -1,18 +1,9 @@
-# check what platform we're on (64-bit or 32-bit), and create a simpler test than CMAKE_SIZEOF_VOID_P
-if(CMAKE_SIZEOF_VOID_P MATCHES 8)
-    set(PLATFORM 64)
-    MESSAGE(STATUS "Detected 64-bit platform")
-else()
-    set(PLATFORM 32)
-    MESSAGE(STATUS "Detected 32-bit platform")
-endif()
-
-if( PREFIX )
-  set(CMAKE_INSTALL_PREFIX "${PREFIX}")
-endif()
-
 if(WIN32)
-  include(${CMAKE_SOURCE_DIR}/cmake/compiler/msvc/settings.cmake)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+  add_definitions(-D_BUILD_DIRECTIVE=\\"$(ConfigurationName)\\")
 elseif(UNIX)
-  include(${CMAKE_SOURCE_DIR}/cmake/compiler/gcc/settings.cmake)
+  add_definitions(-D_BUILD_DIRECTIVE='"${CMAKE_BUILD_TYPE}"')
+
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  message(STATUS "Enabled c++11 support")
 endif()
