@@ -21,7 +21,7 @@
 
 #include "common.hpp"
 #include "MindServer.h"
-#include <iomanip>
+#include <array>
 
 MindServer::MindServer(boost::asio::io_service& io_service, unsigned short port)
 : _acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
@@ -107,9 +107,11 @@ void MindServer::SaveData(ConnectionPtr conn)
 
 std::string MindServer::TimeStamp()
 {
-    std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::array<char, 64> buffer;
+    buffer.fill(0);
+    time_t rawtime = time(nullptr);
+    auto timeinfo = localtime(&rawtime);
+    strftime(buffer.data(), sizeof(buffer), "%Y-%m-%d %H-%M-%S", timeinfo);
+    return std::string(buffer.data());
 
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&now), "%F %T");
-    return ss.str();
 }
