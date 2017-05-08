@@ -36,6 +36,7 @@
 #include <vector>
 #include <iomanip>
 #include <string>
+#include <array>
 
 #include <thread>
 #include <mutex>
@@ -53,3 +54,5 @@
 
 #include "connection.h"
 #include "dataStruct.h"
+
+std::string TimeStamp();

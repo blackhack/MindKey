@@ -21,3 +21,12 @@
 
 #include "common.hpp"
 
+std::string TimeStamp()
+{
+    std::array<char, 64> buffer;
+    buffer.fill(0);
+    time_t rawtime = time(nullptr);
+    auto timeinfo = localtime(&rawtime);
+    strftime(buffer.data(), sizeof(buffer), "%Y-%m-%d %H-%M-%S", timeinfo);
+    return std::string(buffer.data());
+}

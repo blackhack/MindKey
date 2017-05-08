@@ -40,7 +40,6 @@ void Client::StartSendOperations()
         boost::asio::async_connect(_connection.socket(), endpointIterator,
             boost::bind(&Client::HandleConnect, this,
             boost::asio::placeholders::error));
-
     }
     catch (std::exception& e)
     {
@@ -53,7 +52,9 @@ void Client::HandleConnect(const boost::system::error_code& e)
     if (!e)
     {
         _keysBufferLock.lock(); // Bloqueamos el buffer hasta que los datos sean enviados.
-        _connection.async_write(_keyBuffer, boost::bind(&Client::HandleWrite, this, boost::asio::placeholders::error));
+        std::vector<PacketStruct> _toSend; //Temp
+        _toSend.push_back(_keyPacket);
+        _connection.async_write(_toSend, boost::bind(&Client::HandleWrite, this, boost::asio::placeholders::error));
     }
     else
     {
@@ -65,16 +66,17 @@ void Client::HandleConnect(const boost::system::error_code& e)
 void Client::HandleWrite(const boost::system::error_code& e)
 {
     if (!e)
-        _keyBuffer.clear();
+        _keyPacket.Data.clear();
 
     _keysBufferLock.unlock(); // Unlock buffer
 
     StartSendOperations();
 }
 
-void Client::AddKeyInfo(KeyDataStruct info)
+void Client::InsertData(std::string data)
 {
     _keysBufferLock.lock();
-    _keyBuffer.push_back(info);
+    _keyPacket.Id = 1;
+    _keyPacket.Data.push_back(data);
     _keysBufferLock.unlock();
 }

@@ -41,15 +41,15 @@ public:
     void HandleConnect(const boost::system::error_code& e);
     void HandleWrite(const boost::system::error_code& e);
 
-    size_t GetSizeBuffer() { return _keyBuffer.size(); }
-    void AddKeyInfo(KeyDataStruct info);
+    void InsertData(std::string data);
+
 
 private:
     connection _connection;
     std::string _host;
     std::string _port;
 
-    std::vector<KeyDataStruct> _keyBuffer;
+    PacketStruct _keyPacket;
     std::mutex _keysBufferLock;
 };
 

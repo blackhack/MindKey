@@ -26,23 +26,21 @@
 
 #include "common.hpp"
 
-#define SERIALIZE_VERSION 2
+#define SERIALIZE_VERSION 1
 
-struct KeyDataStruct
+struct PacketStruct
 {
-    std::string User;
-    std::string WindowTitle;
-    std::string Key;
+    uint32_t Id;
+    std::vector<std::string> Data;
 
     template <typename Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
-        ar & User;
-        ar & WindowTitle;
-        ar & Key;
+        ar & Id;
+        ar & Data;
     }
 };
 
-BOOST_CLASS_VERSION(KeyDataStruct, SERIALIZE_VERSION)
+BOOST_CLASS_VERSION(PacketStruct, SERIALIZE_VERSION)
 
 #endif // SERIALIZATION_STRUCT_H

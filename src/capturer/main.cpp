@@ -19,21 +19,13 @@ void ClientRun(boost::asio::io_service* io_service, Client* clt)
     }
 }
 
-#ifdef _WIN32
 int WINAPI WinMain(HINSTANCE thisinstance, HINSTANCE previnstance, LPSTR cmdline, int ncmdshow)
-#else
-int main()
-#endif
 {
     boost::asio::io_service io_service;
     Client* client = new Client(io_service, SERVER_ADDRESS, SERVER_PORT);
 
-#ifdef _WIN32
     CapturerWin* capturer = new CapturerWin(client);
     std::thread th(&CapturerWin::run, capturer);
-#else
-    // Future linux handler.
-#endif
 
     ClientRun(&io_service, client);
 
